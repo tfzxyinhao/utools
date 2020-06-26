@@ -3,6 +3,10 @@ name = "utools"
 version = "0.1.0"
 authors = ["yinhao <tfzxyinhao@qq.com>"]
 edition = "2018"
+license = "MIT"
+description = "backend develop common functions"
+homepage = "https://github.com/tfzxyinhao/utools.git"
+documentation = "https://github.com/tfzxyinhao/utools.git"
 
 [lib]
 proc-macro = true
