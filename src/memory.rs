@@ -4,7 +4,7 @@ use syn::export::TokenStream;
 use syn::{AttributeArgs};
 use std::collections::HashSet;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 struct MemoryCacheItem {
     origin_fun_name: String,
     call_count: u64,
@@ -31,7 +31,8 @@ struct MemoryCacheContainer {
     item_list: HashSet<MemoryCacheItem>,
 }
 
-impl MemoryCacheContainer {
+impl<'a> MemoryCacheContainer {
+    #[warn(dead_code)]
     pub fn new() -> MemoryCacheContainer {
         MemoryCacheContainer {
             version: rand::random::<u32>(),
@@ -39,15 +40,22 @@ impl MemoryCacheContainer {
         }
     }
 
-    pub fn add(self: Self, item: &MemoryCacheItem) {
-        self.item_list[*(item.origin_fun_name)] = item
+    pub fn add(&mut self, _item: MemoryCacheItem) {
+        // self.item_list.insert(item);
     }
 }
 
+static mut CONTAINER: Option<MemoryCacheContainer> = None;
+
 fn append_cache_item(expire: u32, desc: String) {
-    let container = MemoryCacheContainer::new();
-    container.add(&MemoryCacheItem::new("test".to_string(), expire, desc));
-    // println!("append_cache_item expire={}, desc={}", expire, desc.clone())
+    unsafe {
+        if CONTAINER.is_none() {
+            CONTAINER = Some(MemoryCacheContainer::new())
+        }
+    }
+
+    // unsafe { CONTAINER.add(MemoryCacheItem::new("test".to_string(), expire, desc)); }
+    println!("append_cache_item expire={}, desc={}", expire, desc)
 }
 
 pub fn parse_config(args: AttributeArgs) {
