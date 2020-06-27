@@ -4,7 +4,7 @@ use syn::export::TokenStream;
 use syn::{AttributeArgs};
 
 fn append_schedule_item(cron: String, desc: String) {
-    println!("append_schedule_item expire={}, desc={}", cron, desc)
+    println!("append_schedule_item cron={}, desc={}", cron, desc)
 }
 
 pub fn parse_config(args: AttributeArgs) {
