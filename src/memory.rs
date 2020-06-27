@@ -3,8 +3,13 @@ extern crate proc_macro;
 use syn::export::TokenStream;
 use syn::{AttributeArgs};
 use std::collections::HashSet;
+use std::sync::RwLock;
 
-#[derive(Clone, Debug, Eq, PartialEq)]
+lazy_static! {
+    static ref _CONTAINER: RwLock<MemoryCacheContainer> = RwLock::new(MemoryCacheContainer::new());
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
 struct MemoryCacheItem {
     origin_fun_name: String,
     call_count: u64,
@@ -27,13 +32,12 @@ impl MemoryCacheItem {
 
 #[derive(Clone, Debug)]
 struct MemoryCacheContainer {
-    pub version: u32,
+    version: u32,
     item_list: HashSet<MemoryCacheItem>,
 }
 
 impl<'a> MemoryCacheContainer {
-    #[warn(dead_code)]
-    pub fn new() -> MemoryCacheContainer {
+    pub fn new() -> Self {
         MemoryCacheContainer {
             version: rand::random::<u32>(),
             item_list: HashSet::new(),
@@ -41,21 +45,18 @@ impl<'a> MemoryCacheContainer {
     }
 
     pub fn add(&mut self, _item: MemoryCacheItem) {
-        // self.item_list.insert(item);
+        self.item_list.insert(_item);
     }
 }
 
-static mut CONTAINER: Option<MemoryCacheContainer> = None;
-
 fn append_cache_item(expire: u32, desc: String) {
-    unsafe {
-        if CONTAINER.is_none() {
-            CONTAINER = Some(MemoryCacheContainer::new())
+    println!("append_cache_item expire={}, desc={}", expire, desc);
+    match _CONTAINER.write() {
+        Ok(mut container) => {
+            container.add(MemoryCacheItem::new("test".to_string(), expire, desc));
         }
+        _ => ()
     }
-
-    // unsafe { CONTAINER.add(MemoryCacheItem::new("test".to_string(), expire, desc)); }
-    println!("append_cache_item expire={}, desc={}", expire, desc)
 }
 
 pub fn parse_config(args: AttributeArgs) {
