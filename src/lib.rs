@@ -1,11 +1,13 @@
 #[macro_use]
 extern crate lazy_static;
+
+extern crate quote;
 extern crate proc_macro;
 
 mod memory;
 mod schedule;
 
-use syn::export::TokenStream;
+use syn::export::{TokenStream};
 use syn::{parse_macro_input, AttributeArgs};
 
 
@@ -22,8 +24,9 @@ use syn::{parse_macro_input, AttributeArgs};
 /// Attributes are the same as in [crontab](attr.crontab.html)
 #[proc_macro_attribute]
 pub fn crontab(attr: TokenStream, item: TokenStream) -> TokenStream {
-    schedule::parse_config(parse_macro_input!(attr as AttributeArgs));
-    schedule::renew_func_sign(item)
+    let (fun_name, wrap_name, out) = schedule::renew_func_sign(item);
+    schedule::parse_config(fun_name, wrap_name, parse_macro_input!(attr as AttributeArgs));
+    out
 }
 
 /// Create a local cache
@@ -39,6 +42,7 @@ pub fn crontab(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// Attributes are the same as in [local_cache](attr.local_cache.html)
 #[proc_macro_attribute]
 pub fn local_cache(attr: TokenStream, item: TokenStream) -> TokenStream {
-    memory::parse_config(parse_macro_input!(attr as AttributeArgs));
-    memory::renew_func_sign(item)
+    let (origin_name, wrap_name, out) = memory::renew_func_sign(item);
+    memory::parse_config(origin_name, wrap_name, parse_macro_input!(attr as AttributeArgs));
+    out
 }

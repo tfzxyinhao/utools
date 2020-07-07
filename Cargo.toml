@@ -12,6 +12,7 @@ documentation = "https://github.com/tfzxyinhao/utools.git"
 proc-macro = true
 
 [dependencies]
-syn = "1.0"
+syn = { version = "1.0.33", features = ["full"] }
+quote = "1.0.7"
 rand = "0.6.5"
 lazy_static = "1.4.0"
